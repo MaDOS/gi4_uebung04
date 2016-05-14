@@ -6,7 +6,7 @@ ld_flags = -lc -I/lib/ld-linux.so.2
 all: a1
 	make clean
 
-a1:
+a1: a1.asm
 	${asm} ${asm_flags} a1.asm
 	${ld} ${ld_flags} -o a1 a1.o
 
