@@ -1,14 +1,13 @@
 SECTION .data
 msg_input DB "F(n) | n=",0
 msg_input_format DB "%d",0
-msg_output DB "F(%d)=%lu",10,0
-;n DD 7
+msg_output DB "F(%d) = %lu",10,0
 
 SECTION .bss
-ergebnis RESD 2
+ergebnis RESQ 1
 n RESD 1
-curr RESD 2
-last RESD 2
+curr RESQ 1
+last RESQ 1
 
 SECTION .text
 global _start
@@ -52,10 +51,10 @@ pusha
 
 	mov dword [ergebnis], 0x0
 	mov dword [ergebnis + 0x4], 0x0
-	mov dword [curr], 0x1
-	mov dword [curr + 0x4], 0x0
-	mov dword [last], 0x1
-	mov dword [last + 0x4], 0x0
+	mov dword [curr], 0x0
+	mov dword [curr + 0x4], 0x1
+	mov dword [last], 0x0
+	mov dword [last + 0x4], 0x1
 
 	mov eax, dword [ebp + 0x8]
 	mov ecx, 0x3
@@ -63,7 +62,7 @@ pusha
 	cmp eax, 0x0				; n < 0 ? invalid arg -> ergebnis = 0
 	JL fib_OV
 	cmp eax, 0x2				; n <= 2 ? ergebnis = (n+1)>> 1 : calc
-	JG fib_calc
+	JNLE fib_calc
 	inc eax
 	shr eax, 1
 	mov dword [ergebnis], 0x0
@@ -71,26 +70,27 @@ pusha
 	JMP fib_end
 
 fib_calc:
-	mov eax, dword [curr]
-	add eax, dword [last]
-	mov dword [ergebnis], eax
-	mov eax, dword [curr + 0x4]
-	adc eax, dword [last + 0x4]
-	mov dword [ergebnis + 0x4], eax
+	mov eax, dword [curr + 0x4]			;|ergebnis = curr + last
+	add eax, dword [last + 0x4]			; |
+	mov dword [ergebnis + 0x4], eax			; |
+	mov eax, dword [curr]				; |
+	adc eax, dword [last]				; |
+	mov dword [ergebnis], eax			; |
 	JO fib_OV					;Overflow: ergebnis exceeds 64bit range
-	mov eax, dword [curr]
-	mov dword [last], eax
-	mov eax, dword [curr + 0x4]
-	mov dword[last + 0x4], eax
-	mov eax, dword [ergebnis]
-	mov dword[curr], eax
-	mov eax, dword[ergebnis + 0x4]
-	mov dword[curr + 0x4], eax
+	mov eax, dword [curr + 0x4]			;|last = curr
+	mov dword[last + 0x4], eax			; |
+	mov eax, dword [curr]				; |
+	mov dword [last], eax				; |
+	mov eax, dword[ergebnis + 0x4]			;|curr = ergebnis
+	mov dword[curr + 0x4], eax			; |
+	mov eax, dword [ergebnis]			; |
+	mov dword[curr], eax				; |
 
-	cmp ecx, dword [n] 					;loop header
 	inc ecx
+	cmp ecx, dword [n] 					;loop header
 	JLE fib_calc
 	JMP fib_end
+
 fib_OV:
 	mov dword [ergebnis], 0x0
 	mov dword [ergebnis + 0x4], 0x0
