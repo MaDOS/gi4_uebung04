@@ -2,6 +2,7 @@ SECTION .data
 msg_input DB "F(n) | n=",0
 msg_input_format DB "%d",0
 msg_output DB "F(%d)=%lu",10,0
+;n DD 7
 
 SECTION .bss
 ergebnis RESD 2
@@ -86,7 +87,7 @@ fib_calc:
 	mov eax, dword[ergebnis + 0x4]
 	mov dword[curr + 0x4], eax
 
-	cmp ecx, eax 					;loop header
+	cmp ecx, dword [n] 					;loop header
 	inc ecx
 	JLE fib_calc
 	JMP fib_end
