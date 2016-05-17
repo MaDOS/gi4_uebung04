@@ -38,6 +38,9 @@ mov ebp, esp
 	call printf
 	add esp, 0x4 * 0x4
 
+mov ebx, 0
+mov eax, 1
+int 0x80
 leave
 ret
 
@@ -60,8 +63,8 @@ pusha
 	JL fib_OV
 	cmp eax, 0x2				; n <= 2 ? ergebnis = (n+1)>> 1 : calc
 	JG fib_calc
-	inc ecx
-	shr ecx, 1
+	inc eax
+	shr eax, 1
 	mov dword [ergebnis], 0x0
 	mov dword [ergebnis + 0x4], eax
 	JMP fib_end
